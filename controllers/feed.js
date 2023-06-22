@@ -3,8 +3,10 @@ const Post = require("../models/post");
 const { v4: uuidv4 } = require("uuid");
 const fileHelper = require("../util/file");
 const post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = async (req, res, next) => {
+  console.log("get in to the fetch post");
   const curPage = req.query.page || 1;
   const countPosts = await Post.count();
 
@@ -21,8 +23,6 @@ exports.createPost = async (req, res, next) => {
   try {
     const title = req.body.title;
     const content = req.body.content;
-    const creator = req.body.creator;
-    const name = "req.body.creator.name";
 
     const resultValidate = validationResult(req);
     if (!resultValidate.isEmpty()) {
@@ -41,10 +41,14 @@ exports.createPost = async (req, res, next) => {
       title: title,
       content: content,
       imageUrl: imageUrl,
-      creator: { name: creator },
+      creator: req.userId,
     });
     await post.save();
 
+    const user = await User.findOne({ _id: req.userId });
+    console.log(post);
+    user.posts.push(post);
+    await user.save();
     res.status(201).json({
       message: "Post created successfully!",
       post: {
@@ -52,9 +56,7 @@ exports.createPost = async (req, res, next) => {
         title: title,
         content: content,
         imageUrl: imageUrl,
-        creator: {
-          name: name,
-        },
+        creator: req.userId,
         createAt: new Date(),
       },
     });

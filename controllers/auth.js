@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 exports.postSignUp = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ exports.postSignUp = async (req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 12);
     const user = new User({
-      username: name,
+      user: name,
       email: email,
       password: hashPassword,
     });
@@ -58,20 +59,18 @@ exports.postLogin = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log(user.password);
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
-      return res.status(200).json({
-        message: "Login successfuly",
-        user: {
-          name: user.username,
-          email: user.email,
-          posts: user.posts || [],
-          status: user.status || "",
-          userId: user._id,
-        },
-      });
+      const token = jwt.sign(
+        { email: user.email, userId: user._id.toString() },
+        "quochoantran3008",
+        { expiresIn: "24h" }
+      );
+      return res
+        .status(201)
+        .json({ token: token, userId: user._id.toString() });
     }
+    return res.status(404).json({ message: "User not found" });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
