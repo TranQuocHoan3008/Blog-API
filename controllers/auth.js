@@ -25,7 +25,7 @@ exports.postSignUp = async (req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 12);
     const user = new User({
-      user: name,
+      name: name,
       email: email,
       password: hashPassword,
     });

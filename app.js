@@ -8,7 +8,7 @@ const app = express();
 const path = require("path");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
-
+const isAuth = require("./middleware/isAuth");
 const MONGODB_URI =
   "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/feed";
 

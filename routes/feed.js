@@ -30,6 +30,7 @@ router.put(
     body("title").isString().trim().isLength({ min: 5 }),
     body("content").isString().trim().isLength({ min: 10 }),
   ],
+  isAuth,
   feedController.editPost
 );
 
